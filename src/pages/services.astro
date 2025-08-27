@@ -1,0 +1,111 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+const services = [
+  {
+    id: "translations",
+    title: "Translations",
+    description: "We offer certified Portuguese/English translations. Our translators are carefully vetted, and each has the qualifications and experience required to translate your documents. We use the most rigorous third-party translator testing service available, and our three-step quality control process ensures that every document is accurate, properly formatted, and consistent throughout.",
+    image: {
+      src: "/images/Translations.jpg",
+      srcset: {
+        "1x": "/images/Translations-1x.jpg",
+        "2x": "/images/Translations-2x.jpg",
+        "3x": "/images/Translations-3x.jpg"},
+      width: 600,
+      height: 680,
+      alt: "Translations"
+    }
+  },
+  {
+    id: "taxes-tax-resolutions",
+    title: "Taxes & Tax Resolutions",
+    description: "We offer tax preparations, planning, compliance, and resolution to individuals and businesses. We pride ourselves on being a full-service tax company, offering a wide range of tax-related services to individuals and businesses. When you have a tax problem, you need to take action, and you can count on us to do it. For issues big and small, you can get personalized help from an expert at TC Professional Services to work with the IRS for you.",
+    image: {
+      src: "/images/Taxes-Tax-Resolutions.jpg",
+      srcset: {
+        "1x": "/images/Taxes-Tax-Resolutions-1x.jpg",
+        "2x": "/images/Taxes-Tax-Resolutions-2x.jpg",
+        "3x": "/images/Taxes-Tax-Resolutions-3x.jpg"},
+      width: 600,
+      height: 680,
+      alt: "Taxes & Tax Resolutions"
+    }
+  },
+  {
+    id: "bookkeeping-payroll",
+    title: "Bookkeeping & Payroll",
+    description: "We take care of your books for you, so you can get back to running your business. We provide accurate and efficient bookkeeping and payroll services freeing up valuable time. We specialize in bookkeeping and payroll services for small and medium-sized businesses. We keep your financial data safe on highly secure in our client portal. This way, you can focus on what is the most important: your business.",
+    image: {
+      src: "/images/Bookkeeping-Payroll.jpg",
+      srcset: {
+        "1x": "/images/Bookkeeping-Payroll-1x.jpg",
+        "2x": "/images/Bookkeeping-Payroll-2x.jpg",
+        "3x": "/images/Bookkeeping-Payroll-3x.jpg"},
+      width: 600,
+      height: 680,
+      alt: "Bookkeeping & Payroll"
+    }
+  },
+  {
+    id: "bookkeeping-payroll",
+    title: "Consulting",
+    description: "We can assist you with your business strategies and ventures. No matter how complex your business questions, we have the skills and experience to deliver the answers you need to move forward. Our consulting services focus on our clients most critical issues and opportunities. We dive deep into their strategy, organization, operations, and corporate finance. Together, we can achieve extraordinary outcomes.",
+    image: {
+      src: "/images/Consulting.jpg",
+      srcset: {
+        "1x": "/images/Consulting-x1.jpg",
+        "2x": "/images/Consulting-x2.jpg",
+        "3x": "/images/Consulting-x3.jpg"},
+      width: 600,
+      height: 680,
+      alt: "Consulting"
+    }
+  },
+]
+---
+
+<PageLayout title="Services" coverPicture="/images/services-cover.jpg">
+  <div class="typography">
+    <p>TC Professional Services provides individualsand small to medium-size businesses in all industries with quality, affordable, and personalized professional services and tax solutions.</p>
+  </div>
+
+  <div class="flex flex-col gap-8 max-w-screen-full mx-auto pb-8">
+    <div class="w-full max-w-screen-full py-8 mx-auto">
+      <div class="flex flex-col gap-6 md:gap-12">
+        {services.map((service) => (
+          <div id={service.id} class="w-full flex flex-col gap-6 sm:flex-row md:items-center">
+            <div class="w-full sm:min-w-[200px] sm:max-w-[300px]">
+              <img
+                class="w-full rounded-md object-cover"
+                src={service.image.src}
+                srcset={`
+                  ${service.image.srcset["1x"]}  1x,
+                  ${service.image.srcset["2x"]} 2x,
+                  ${service.image.srcset["3x"]} 3x
+                `}
+                width={service.image.width}
+                height={service.image.height}
+                alt={service.image.alt}
+                sizes="100vw"
+              />
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="text-primary text-[1.75rem] leading-normal">
+                {service.title}
+              </h3>
+              <div class="text-lg font-light">
+                <p>{service.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</PageLayout>
+
+
+
+
+
