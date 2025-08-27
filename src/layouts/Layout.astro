@@ -1,3 +1,12 @@
+---
+import "../styles/app.css";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import Sprites from "../components/Sprites.astro";
+
+const title = Astro.props.title ?? "Page Title";
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
@@ -5,18 +14,18 @@
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{ title } | Talita Camilo Professional Service</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 	</head>
 	<body>
-		<slot />
+		<Sprites />
+		<SiteHeader/>
+		<main>
+			<slot />
+		</main>
+		<SiteFooter/>
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

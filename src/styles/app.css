@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@import './components/globals.css' layer(components);
+@import './components/typography.css' layer(components);
+@import './components/hamburger.css' layer(components);
+@import './components/siteHeader.css' layer(components);
+
+@plugin "@tailwindcss/forms";

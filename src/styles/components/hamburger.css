@@ -1,0 +1,103 @@
+/*
+ * @Author: webrgp
+ * @Date: 2022-05-09 22:51:28
+ * @Last Modified by: diegocosta-dev
+ * @Last Modified time: 2022-09-23 09:10:30
+ *
+ * @credits: https://jonsuh.com/hamburgers/
+ */
+
+ :root {
+  --hamburger-width: 30px;
+  --hamburger-height: 30px;
+  --hamburger-inner-height: 3px;
+  --hamburger-inner-space: 8px;
+}
+
+@layer components {
+  .hamburger {
+    display: inline-block;
+    cursor: theme(cursor.pointer);
+    transition-property: theme(transitionProperty.opacity);
+    transition-timing-function: theme(transitionTimingFunction.linear);
+    transition-duration: theme(transitionDuration.DEFAULT);
+    background-color: var(--color-transparent);
+    border-width: theme(borderWidth.0);
+    margin: 0px;
+    padding: 8px;
+    overflow: visible;
+    line-height: 0px;
+    z-index: 9999;
+
+    &:hover,
+    &[aria-expanded="true"]:hover {
+      opacity: theme(opacity.70);
+    }
+
+    &[aria-expanded="true"] .hamburger-inner {
+      background-color: theme('colors.primary');
+      transform: rotate(45deg);
+      transition-delay: 120ms;
+      transition-timing-function: theme(transitionTimingFunction.DEFAULT);
+
+      &::before {
+        transition: top 0.075s ease, opacity 0.075s 0.12s ease;
+        background-color: theme('colors.primary');
+        top: 0px;
+        opacity: 0px;
+      }
+
+      &::after {
+        background-color: theme('colors.primary');
+        bottom: 0px;
+        transform: rotate(-90deg);
+        transition: bottom 0.075s ease,
+          transform 0.075s 0.12s cubic-bezier(0.215, 0.61, 0.355, 1);
+      }
+    }
+  }
+
+  .hamburger-box {
+    position: relative;
+    display: inline-block;
+    width: var(--hamburger-width);
+    height: var(--hamburger-height);
+  }
+
+  .hamburger-inner {
+    display: block;
+    top: 50%;
+    margin-top: -0.125rem /* -2px */;
+    transition-duration: theme(transitionDuration.75);
+    transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+
+    &,
+    &::before,
+    &::after {
+      position: absolute;
+      transition-property: transform;
+      transition-timing-function: ease;
+      border-radius: 50px;
+      transition-duration: theme(transitionDuration.DEFAULT);
+      width: var(--hamburger-width);
+      height: var(--hamburger-inner-height);
+      background-color: theme('colors.primary');
+    }
+
+    &::before,
+    &::after {
+      display: block;
+      content: "";
+    }
+
+    &::before {
+      top: var(--hamburger-inner-space);
+      transition: top 0.075s 0.12s ease, opacity 0.075s ease;
+    }
+    &::after {
+      bottom: var(--hamburger-inner-space);
+      transition: bottom 0.075s 0.12s ease,
+        transform 0.075s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    }
+  }
+}

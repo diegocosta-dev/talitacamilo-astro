@@ -1,0 +1,51 @@
+/**
+* ./src/css/components/globals.css
+*
+* This file is for global styles that are not specific to a component,
+* but are used throughout the website.
+*
+* It can be use as a starting point for your global page components, but
+* keeping with DRY & KISS principles, as those components grow, you should
+* consider moving them to their own file.
+*
+*/
+
+/* Default Sizes: */
+/* sm: 640px */
+/* md: 768px */
+/* lg: 1024px */
+/* xl: 1280px */
+/* 2xl: 1536px */
+
+@theme {
+  --color-black: oklch(0 0 0);
+  --color-white: oklch(1 0 0);
+  --color-transparent: transparent;
+  --color-primary: oklch(0.496 0.1869 19.65);
+  --breakpoint-full: 1440px;
+  --font-sans: "Jost", "sans-serif";
+}
+
+@layer base {
+  #testimonials .heading:before {
+    content: "";
+    display: block;
+    height: 20px;
+    position: absolute;
+    top: 5px;
+    width: 23px;
+    background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMyIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIzIDIwIj48ZGVmcz48ZmlsdGVyIGlkPSJwcmVmaXhfX2EiPjxmZUNvbG9yTWF0cml4IGluPSJTb3VyY2VHcmFwaGljIiB2YWx1ZXM9IjAgMCAwIDAgMC43MDU4ODIgMCAwIDAgMCAwLjA5MDE5NiAwIDAgMCAwIDAuMjAwMDAwIDAgMCAwIDEuMDAwMDAwIDAiLz48L2ZpbHRlcj48L2RlZnM+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBmaWx0ZXI9InVybCgjcHJlZml4X19hKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU5NCAtNTMpIj48ZyBmaWxsPSIjMDAwIiBmaWxsLXJ1bGU9Im5vbnplcm8iPjxwYXRoIGQ9Ik0yMC42MTIgMTBoLTMuNzQxVjcuMTQzYy4wMDEtMS41NzcgMS4zNC0yLjg1NiAyLjk5My0yLjg1N2guMzc0Yy4yOTcgMCAuNTgyLS4xMTEuNzkzLS4zMTEuMjEtLjIuMzI5LS40NzIuMzMtLjc1NVYxLjA3YzAtLjI4My0uMTE3LS41NTUtLjMyNi0uNzU2QzIwLjgyNS4xMTQgMjAuNTQgMCAyMC4yNDQgMGgtLjM4QzE1LjczIDAgMTIuMzggMy4xOTggMTIuMzggNy4xNDN2MTAuNzE0YzAgMS4xODQgMS4wMDUgMi4xNDMgMi4yNDUgMi4xNDNoNS45ODZjMS4yNCAwIDIuMjQ1LS45NiAyLjI0NS0yLjE0M3YtNS43MTRjMC0xLjE4NC0xLjAwNS0yLjE0My0yLjI0NS0yLjE0M1oiIG9wYWNpdHk9Ii40IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1OTQgNTMpIi8+PHBhdGggZD0iTTguMjMxIDEwSDQuNDlWNy4xNDNjLjAwMS0xLjU3NyAxLjM0LTIuODU2IDIuOTkzLTIuODU3aC4zNzRjLjI5NyAwIC41ODItLjExMS43OTMtLjMxMS4yMS0uMi4zMjktLjQ3Mi4zMy0uNzU1VjEuMDdjMC0uMjgzLS4xMTctLjU1NS0uMzI2LS43NTZDOC40NDQuMTE0IDguMTYgMCA3Ljg2MyAwaC0uMzhDMy4zNSAwIDAgMy4xOTggMCA3LjE0M3YxMC43MTRDMCAxOS4wNDEgMS4wMDUgMjAgMi4yNDUgMjBIOC4yM2MxLjI0IDAgMi4yNDUtLjk2IDIuMjQ1LTIuMTQzdi01LjcxNGMwLTEuMTg0LTEuMDA1LTIuMTQzLTIuMjQ1LTIuMTQzWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTk0IDUzKSIvPjwvZz48L2c+PC9zdmc+) no-repeat 0 0;
+    left: -40px;
+  }
+
+  #testimonials .heading:after {
+    content: "";
+    display: block;
+    height: 20px;
+    position: absolute;
+    top: 5px;
+    width: 23px;
+    background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMyIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIzIDIwIj48ZGVmcz48ZmlsdGVyIGlkPSJwcmVmaXhfX2EiPjxmZUNvbG9yTWF0cml4IGluPSJTb3VyY2VHcmFwaGljIiB2YWx1ZXM9IjAgMCAwIDAgMC43MDU4ODIgMCAwIDAgMCAwLjA5MDE5NiAwIDAgMCAwIDAuMjAwMDAwIDAgMCAwIDEuMDAwMDAwIDAiLz48L2ZpbHRlcj48L2RlZnM+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBmaWx0ZXI9InVybCgjcHJlZml4X19hKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTgyMiAtNTMpIj48ZyBmaWxsPSIjMDAwIiBmaWxsLXJ1bGU9Im5vbnplcm8iPjxwYXRoIGQ9Ik03Ljg1NyAwSDIuMTQzQy45NTkgMCAwIC45NiAwIDIuMTQzdjUuNzE0QzAgOS4wNDEuOTYgMTAgMi4xNDMgMTBoMy41NzF2Mi44NTdhMi44NiAyLjg2IDAgMCAxLTIuODU3IDIuODU3SDIuNWExLjA2OSAxLjA2OSAwIDAgMC0xLjA3MSAxLjA2NnYyLjE0OUExLjA2OSAxLjA2OSAwIDAgMCAyLjQ5NSAyMGguMzYyQTcuMTQzIDcuMTQzIDAgMCAwIDEwIDEyLjg1N1YyLjE0M0MxMCAuOTU5IDkuMDQgMCA3Ljg1NyAwWiIgb3BhY2l0eT0iLjQiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgyMiA1MykiLz48cGF0aCBkPSJNMjAuNzI3IDBoLTUuNzE1QzEzLjgzIDAgMTIuODcuOTYgMTIuODcgMi4xNDN2NS43MTRjMCAxLjE4NC45NTkgMi4xNDMgMi4xNDIgMi4xNDNoMy41NzJ2Mi44NTdhMi44NiAyLjg2IDAgMCAxLTIuODU3IDIuODU3aC0uMzU3YTEuMDY5IDEuMDY5IDAgMCAwLTEuMDcyIDEuMDY2djIuMTQ5QTEuMDY5IDEuMDY5IDAgMCAwIDE1LjM2NCAyMGguMzYzYTcuMTQzIDcuMTQzIDAgMCAwIDcuMTQzLTcuMTQzVjIuMTQzQzIyLjg3Ljk1OSAyMS45MSAwIDIwLjcyNyAwWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoODIyIDUzKSIvPjwvZz48L2c+PC9zdmc+) no-repeat 0 0;
+    right: -40px;
+  }
+}

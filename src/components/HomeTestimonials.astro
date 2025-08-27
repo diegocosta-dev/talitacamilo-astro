@@ -1,0 +1,82 @@
+---
+const testimonials = [
+  {
+    name: "Maysa Tabbert",
+    content:
+      "Talita Camilo and her team are always ready to help me with all my tax needs. They make it simple and stress-free. I can always trust their accurate advice and professional assistance. I recommend Talita Camilo Professional Services to anyone who’s looking for a professional, reliable, and straightforward tax expert.",
+  },
+  {
+    name: "Anna N",
+    content:
+      "Talita is a kind professional, who puts her customers needs over business. She helped walk us through a legal process and translated effortlessly without her i don’t know what we would have done! We also get our taxes done here which is smooth sailing.",
+  },
+  {
+    name: "Ricardo Batista",
+    content:
+      "I've been a business owner for over ten years. Throughout the years, I've faced many tax issues. I changed accountants so many times, trying to find one able to help me out with these situations. Since I met Talita Camilo Professional Services, they take care of every accounting needs of my company. Talita Camilo and Matheus Miranda work hard to help me keep up with deadlines, documentation, audits, etc. I know I can trust their advice. They are honest, dependable, straightforward, and the best at what you do. This year, I saved over 110,000.00 dollars on insurance audits, and I can't thank Talita and her team enough. I highly recommend Talita Camilo Professional Services to anyone who's looking to have their fiscal life organized. Thank you so much, Talita!",
+  },
+  {
+    name: "Rodrigo P",
+    content:
+      "I have known and valued Talita’s thoughtful input, analysis and attention to detail for a long time now. Not only she has been an asset to our company, her council was essecial to our growth",
+  },
+];
+
+const slidesLen = testimonials.length;
+---
+
+<div class="w-full bg-primary/15 px-4 py-12 md:py-18">
+  <div id="testimonials" class="relative flex flex-col gap-6 items-center w-full max-w-screen-full mx-auto">
+    <h3 class="relative heading text-center leading-normal text-3xl font-light tracking-wide md:text-5xl">
+      <span>Testimonials</span>
+    </h3>
+
+    <!-- Alpine: garante rodar no client; x-init chama a função -->
+    <div
+      x-data={`testimonials(${slidesLen})`}
+      x-init="autoplay()"
+      x-on:mouseenter="isPaused = true"
+      x-on:mouseleave="isPaused = false"
+      class="flex flex-col gap-6 relative w-full"
+    >
+      <!-- Slides -->
+      <div class="relative flex flex-col gap-6 w-full">
+        {
+          testimonials.map((t, idx) => (
+            <div
+              x-show={`currentSlideIndex === ${idx + 1}`}
+              x-bind:aria-hidden={`currentSlideIndex !== ${idx + 1}`}
+              class="max-w-[960px] mx-auto"
+              aria-hidden="true"
+              style="display: none;"
+            >
+              <div class="flex flex-col-reverse gap-2 text-center">
+                <h3 class="text-lg font-bold tracking-wider">
+                  {t.name}
+                </h3>
+                <div class="text-xl font-light">
+                  <p>{t.content}</p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="flex gap-2 justify-center" role="group" aria-label="Testimonial Slides">
+        {
+          testimonials.map((_, idx) => (
+            <button
+              type="button"
+              class="cursor-pointer size-4 rounded-full transition"
+              x-on:click={`currentSlideIndex = ${idx + 1}; setAutoplayInterval(autoplayIntervalTime)`}
+              x-bind:class={`currentSlideIndex === ${idx + 1} ? 'bg-primary' : 'bg-primary/50'`}
+              x-bind:aria-current={`currentSlideIndex === ${idx + 1} ? 'true' : undefined`}
+              aria-label={`Slide ${idx + 1}`}
+            ></button>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>

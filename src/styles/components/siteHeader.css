@@ -1,0 +1,25 @@
+/*
+ * @Author: webrgp
+ * @Date: 2022-05-09 22:51:28
+ * @Last Modified by: diegocosta-dev
+ * @Last Modified time: 2022-09-23 09:10:30
+ *
+ * @credits: https://jonsuh.com/hamburgers/
+ */
+
+ :root {
+  --hamburger-width: 30px;
+  --hamburger-height: 30px;
+  --hamburger-inner-height: 3px;
+  --hamburger-inner-space: 8px;
+}
+
+@layer components {
+  #site-navigation {
+    @apply hidden md:flex justify-between w-full bg-white drop-shadow-2xl p-4 md:drop-shadow-none;
+
+    &.active {
+      @apply flex absolute top-0 opacity-100 z-30 md:relative;
+    }
+  }
+}

@@ -1,0 +1,210 @@
+/**
+ * ./src/css/components/typography.css
+ *
+ * Website Typography
+ *
+ * The base typography for the website and rich text components
+ * should be defined in ./tailwind.preset.cjs
+ *
+ * Use this file to define typography for specific circumstances, such as
+ * when defining typography to a class instead of an element.
+ *
+ * Example:
+ *
+ *  .h2 { ... }
+ *
+ */
+
+ @layer components {
+  .typography {
+    /* @apply font-trajan-pro; */
+    h1, h2, h3, h4, h5, h6, p {
+      font-variant-numeric: lining-nums proportional-nums;
+
+      &:first-child {
+        margin-top: 0rem;
+      }
+
+      &:last-child {
+        margin-bottom: 0rem;
+      }
+    }
+
+    h1, h2 {
+      font-size: 2rem;
+      font-weight: 500;
+      line-height: 1.2;
+      margin-bottom: .5rem;
+      margin-top: 0;
+      color: var(--color-primary)
+    }
+
+    h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: .5rem;
+      margin-top: 0;
+    }
+
+    h4 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 1.2;
+      margin-bottom: .5rem;
+      margin-top: 0;
+    }
+
+    h5 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      line-height: 1.2;
+      margin-bottom: .5rem;
+      margin-top: 0;
+    }
+
+    h6 {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.2;
+      margin-bottom: .5rem;
+      margin-top: 0;
+    }
+
+    p {
+      font-size: 1.25rem;
+      letter-spacing: .5px;
+      font-style: normal;
+      font-weight: 350;
+      line-height: normal;
+      margin: 1rem 0;
+    }
+
+    a {
+      font-size: 1.25rem;
+      letter-spacing: .5px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+      margin: 1rem 0;
+      color: var(--color-primary);
+
+      text-decoration-line: underline;
+      text-decoration-style: solid;
+      text-decoration-skip-ink: auto;
+      text-decoration-thickness: auto;
+      text-underline-offset: auto;
+      text-underline-position: from-font;
+    }
+
+    blockquote {
+      border-left-style: solid;
+      border-left-width: 6px;
+      padding: 1rem;
+      padding-left: 1rem;
+      border-color: var(--color-primary);
+      margin: 2rem 0;
+
+      & p {
+        font-size: 1.25rem;
+        letter-spacing: .5px;
+        font-style: italic;
+        font-weight: 350;
+        line-height: normal;
+        margin: 1rem 0;
+      }
+    }
+
+    ol {
+      margin: 1.5rem 0;
+      padding-inline-start: 1.5rem;
+    }
+
+    ol {
+      list-style-type: decimal;
+    }
+    
+    li {
+      font-size: 1.25rem;
+      font-style: normal;
+      font-weight: 350;
+      line-height: normal;
+      margin: 1.5rem 0;
+
+      &:first-child {
+        margin-top: 0rem;
+      }
+
+      &:last-child {
+        margin-bottom: 0rem;
+      }
+    }
+
+    ol li {
+      &::marker {
+        color: var(--color-primary);
+        font-variant-numeric: lining-nums proportional-nums;
+      }
+    }
+
+    ul {
+      margin: 1.5rem 0;
+      list-style: none;
+      padding-inline-start: 0.5rem;
+    }
+
+    ul li {
+      position: relative;
+      padding-left: 1rem;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.5em;
+        width: 0.375rem;
+        height: 0.625rem;
+        background-image: url("data:image/svg+xml,%3Csvg width='6' height='10' viewBox='0 0 6 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 0L6 5L1.5 10H0V0H1.5Z' fill='%23C62C27'/%3E%3C/svg%3E%0A");
+        background-repeat: no-repeat;
+        background-size: contain;
+      }
+    }
+
+    img {
+      width: 100%;
+      display: inline-block;
+      padding: 1.5rem 0;
+
+      &:first-child {
+        padding-top: 0rem;
+      }
+
+      &:last-child {
+        padding-bottom: 0rem;
+      }
+    }
+
+    figure {
+      width: 100%;
+      display: inline-block;
+      padding: 1.5rem 0;
+
+      &:first-child {
+        padding-top: 0rem;
+      }
+
+      &:last-child {
+        padding-bottom: 0rem;
+      }
+
+      & img {
+        width: 100%;
+        padding: 0;
+      }
+
+      & figcaption {
+        padding: 0.5rem 0;
+      }
+    }
+  }
+ }
