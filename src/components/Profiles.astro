@@ -1,0 +1,36 @@
+---
+const profiles = Astro.props.profiles ?? false
+---
+
+{profiles.length !== 0 ? (
+  <div class="flex flex-col gap-8 max-w-screen-full mx-auto pb-8">
+    <div class="w-full max-w-screen-full py-8 mx-auto">
+      <div class="w-full grid grid-cols-2 gap-6 md:grid-cols-3">
+        {
+          profiles.map((profile: any) => (
+            <div class="flex flex-col gap-3 items-center w-full">
+              <div class="w-full aspect-square">
+                <img
+                  class="w-full rounded-md object-cover aspect-square"
+                  src={profile.image.src}
+                  width={profile.image.width}
+                  height={profile.image.height}
+                  alt={profile.image.alt}
+                  sizes="100vw"
+                />
+              </div>
+              <div class="flex flex-col gap-2 items-center text-center">
+                <h3 class="text-2xl tracking-wide font-medium">
+                  {profile.name}
+                </h3>
+                <p class="text-xl tracking-wide font-light">
+                  {profile.role}
+                </p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+) : null }

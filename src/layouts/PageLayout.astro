@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHeader from '../components/PageHeader.astro';
+
+const pageTitle = Astro.props.title ?? "Page Title"
+const coverPicture = Astro.props.coverPicture ?? false
+const description = Astro.props.description ?? false
+---
+
+<Layout title={pageTitle}>
+  <div class="w-full max-w-screen-full mx-auto px-4 py-8">
+    <div class="flex flex-col gap-12">
+      <PageHeader title={pageTitle} coverPicture={coverPicture} description={description} />
+      <slot />
+    </div>
+  </div>
+</Layout>

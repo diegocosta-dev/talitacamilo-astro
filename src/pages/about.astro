@@ -1,0 +1,45 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import Profiles from '../components/Profiles.astro';
+
+const profiles = [
+  {
+    name: "Talita Camilo",
+    role: "President & Senior Accountant",
+    image: {
+      src: "/images/talita-profile.jpg",
+      width: 800,
+      height: 800,
+      alt: "Talita profile"
+    }
+  },
+  {
+    name: "Kellen Francescon",
+    role: "Tax Preparer",
+    image: {
+      src: "/images/kellen-francescon-profile.jpg",
+      width: 800,
+      height: 800,
+      alt: "Kellen francescon profile"
+    }
+  },
+  {
+    name: "Andressa Costa",
+    role: "Account Manager",
+    image: {
+      src: "/images/andressa-costa-profile.jpg",
+      width: 800,
+      height: 800,
+      alt: "Andressa Costa profile"
+    }
+  }
+]
+---
+
+<PageLayout title="About Us" coverPicture="/images/talita-about-cover.jpg">
+  <div class="typography">
+    <p>TC Professional Services provides individuals and small to medium-size businesses in all industries with quality, affordable, and personalized professional services and tax solutions.</p><p><strong>We are committed to helping each of our clients succeed. For this reason, our employees are always up-to-date with the latest audit, accounting, and tax requirements. It ensures that we deliver accurately the best advice combined with solid and dependable customer service.</strong></p><p>Our high standards of service, and specialized team establishes the difference between TC Professional Services and the other firms. You can trust us to absolve financial stress from your business and personal finances matters.</p>
+  </div>
+
+  <Profiles profiles={profiles} />
+</PageLayout>

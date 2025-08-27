@@ -1,0 +1,28 @@
+---
+const pageTitle = Astro.props.title ?? "Page Title"
+const coverPicture = Astro.props.coverPicture ?? false
+const description = Astro.props.description ?? false
+---
+
+<div class="flex flex-col gap-8">
+  <h1 class="text-primary leading-normal text-3xl text-center font-semibold tracking-wide md:text-5xl">
+    {pageTitle}
+  </h1>
+    
+  {description ? (
+    <div class="typography">
+      <p>{ description }</p>
+    </div>
+  ) : null}
+
+  {coverPicture ? (
+    <img
+      class="w-full rounded-md object-cover"
+      src={coverPicture}
+      width="1296"
+      height="530"
+      alt={pageTitle}
+      sizes="100vw"
+    />
+  ) : null}
+  </div>
