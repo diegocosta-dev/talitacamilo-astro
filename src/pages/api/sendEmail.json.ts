@@ -1,8 +1,7 @@
-// pages/api/sendEmail.json.ts
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 const schema = z.object({
   "first-name": z.string().min(1, "First name is required"),
@@ -20,12 +19,7 @@ function json(data: unknown, status = 200) {
   });
 }
 
-/** Pega env do runtime do Cloudflare (Pages/Workers) com fallbacks */
 function getEnv(context: Parameters<APIRoute>[0]) {
-  // Tentativas comuns nos adapters/versions:
-  // - context.locals.runtime.env (Astro adapter-cloudflare mais novo)
-  // - context.locals.env (algumas versões)
-  // - context.platform.env (fallback em runtimes compatíveis)
   const env =
     // @ts-ignore
     context.locals?.runtime?.env ??
@@ -71,7 +65,6 @@ async function verifyRecaptcha(
   };
 }
 
-// Envia usando a API REST do Resend (edge-safe)
 async function sendWithResend(
   apiKey: string,
   payload: {
@@ -115,7 +108,6 @@ export const POST: APIRoute = async (context) => {
     const raw = Object.fromEntries(form.entries());
     const input = schema.parse(raw);
 
-    // 1) reCAPTCHA
     const recaptchaSecret =
       env.RECAPTCHA_SECRET_KEY ||
       (import.meta as any).env?.RECAPTCHA_SECRET_KEY;
@@ -132,11 +124,7 @@ export const POST: APIRoute = async (context) => {
     ) {
       return json({ message: "reCAPTCHA validation failed." }, 400);
     }
-    // (Opcional) reforços:
-    // if (recaptcha.action !== "contact_form") return json({ message: "Invalid reCAPTCHA action" }, 400);
-    // if (recaptcha.hostname !== "seu-dominio.com") return json({ message: "Invalid hostname" }, 400);
 
-    // 2) E-mail via Resend REST
     const resendKey =
       env.RESEND_API_KEY || (import.meta as any).env?.RESEND_API_KEY;
     if (!resendKey) throw new Error("Missing RESEND_API_KEY");
@@ -160,6 +148,17 @@ export const POST: APIRoute = async (context) => {
 
     return json({ message: "Message successfully sent!" }, 200);
   } catch (err: any) {
+    if (err instanceof ZodError) {
+      const errors: Record<string, string> = {};
+      for (const issue of err.issues) {
+        const path = issue.path?.[0];
+        if (typeof path === "string" && !errors[path]) {
+          errors[path] = issue.message;
+        }
+      }
+      return json({ message: "Validation failed", errors }, 422);
+    }
+
     return json({ message: err?.message || "Unexpected error" }, 500);
   }
 };
