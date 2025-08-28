@@ -15,6 +15,13 @@ const schema = z.object({
   recaptchaToken: z.string().min(1, "reCAPTCHA is required"),
 });
 
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+}
+
 async function verifyRecaptcha(token: string, remoteip?: string) {
   const params = new URLSearchParams();
   params.set("secret", import.meta.env.RECAPTCHA_SECRET_KEY);
@@ -28,7 +35,6 @@ async function verifyRecaptcha(token: string, remoteip?: string) {
   });
 
   if (!res.ok) throw new Error("Failed to reach reCAPTCHA");
-
   return (await res.json()) as {
     success: boolean;
     score?: number;
@@ -52,10 +58,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       !result.success ||
       (typeof result.score === "number" && result.score < 0.5)
     ) {
-      return new Response(
-        JSON.stringify({ message: "reCAPTCHA validation failed." }),
-        { status: 400 }
-      );
+      return json({ message: "reCAPTCHA validation failed." }, 400);
     }
 
     const fullName = `${input["first-name"]} ${input["last-name"]}`;
@@ -74,27 +77,15 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     });
 
     if (!send.data) {
-      return new Response(
-        JSON.stringify({ message: `Message failed to send: ${send.error}` }),
-        { status: 500 }
-      );
+      return json({ message: `Message failed to send: ${send.error}` }, 500);
     }
 
-    return new Response(
-      JSON.stringify({ message: "Message successfully sent!" }),
-      { status: 200 }
-    );
+    return json({ message: "Message successfully sent!" }, 200);
   } catch (err: any) {
     if (err?.issues) {
       const first = err.issues[0];
-      return new Response(
-        JSON.stringify({ message: first?.message ?? "Invalid input" }),
-        { status: 400 }
-      );
+      return json({ message: first?.message ?? "Invalid input" }, 400);
     }
-    return new Response(
-      JSON.stringify({ message: err?.message ?? "Unexpected error" }),
-      { status: 500 }
-    );
+    return json({ message: err?.message ?? "Unexpected error" }, 500);
   }
 };

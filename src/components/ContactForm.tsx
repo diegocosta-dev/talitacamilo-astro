@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY;
+const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY as string;
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
@@ -55,11 +55,20 @@ export default function ContactForm() {
         body: formData,
       });
 
-      const data = await res.json().catch(async () => ({ message: await res.text() }));
+      const contentType = res.headers.get("content-type") ?? "";
+      const raw = await res.text();
+
+      let data: any = null;
+      if (contentType.includes("application/json")) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+        }
+      }
 
       if (!res.ok) {
         setStatus("error");
-        setErrorMsg(data?.message || "Failed to send. Please try again.");
+        setErrorMsg(data?.message || raw || "Failed to send. Please try again.");
         return;
       }
 
@@ -134,7 +143,3 @@ export default function ContactForm() {
     </div>
   );
 }
-
-
-
-
