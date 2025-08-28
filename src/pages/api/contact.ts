@@ -13,7 +13,6 @@ function json(body: unknown, status = 200) {
 export const POST: APIRoute = async ({ request }) => {
   const data = await request.formData();
 
-  // Honeypot: se preenchido, trata como spam e finge sucesso
   const honey = String(data.get("company") ?? "");
   if (honey) return json({ message: "Success!" });
 
@@ -23,7 +22,6 @@ export const POST: APIRoute = async ({ request }) => {
   const phone = String(data.get("phone") ?? "").trim();
   const message = String(data.get("message") ?? "").trim();
 
-  // Validação básica
   if (!firstName || !lastName || !email || !phone || !message) {
     return json({ message: "Missing required fields" }, 400);
   }
@@ -36,13 +34,12 @@ export const POST: APIRoute = async ({ request }) => {
 
   const name = `${firstName} ${lastName}`.trim();
 
-  // Payload para MailChannels
   const payload = {
     personalizations: [
-      { to: [{ email: "info@talitacamilo.com", name: "Info" }] }, // <- destinatário
+      { to: [{ email: "diego@hellodative.com", name: "Info" }] },
     ],
     from: {
-      email: "website@talitacamilo.com", // <- remetente do SEU domínio
+      email: "diego@hellodative.com",
       name: "Talita Camilo Professional Services",
     },
     subject: `New contact message from ${name}`,
@@ -59,14 +56,6 @@ export const POST: APIRoute = async ({ request }) => {
   };
 
   try {
-    // ⚠️ Em DEV local (fora do edge da Cloudflare) o MailChannels pode retornar 401.
-    // Se quiser mockar no dev, descomente o bloco abaixo:
-    // const runningAtEdge = !!request.headers.get("cf-connecting-ip");
-    // if (import.meta.env.DEV && !runningAtEdge) {
-    //   console.log("[DEV MOCK] payload:", { name, email, phone, message });
-    //   return json({ message: "Success!" }, 200);
-    // }
-
     const res = await fetch("https://api.mailchannels.net/tx/v1/send", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -74,7 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     if (!res.ok) {
-      const errText = await res.text(); // pode vir HTML quando dá erro
+      const errText = await res.text();
       console.error("MailChannels error:", errText);
       return json(
         {
