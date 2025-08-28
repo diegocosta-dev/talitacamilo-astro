@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-const RECAPTCHA_SITE_KEY = import.meta.env.RECAPTCHA_SITE_KEY;
+const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY;
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
