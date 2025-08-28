@@ -4,7 +4,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { Resend } from "resend";
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
+const resend = new Resend(import.meta.env.PUBLIC_RESEND_API_KEY);
 
 const schema = z.object({
   "first-name": z.string().min(1, "First name is required"),
