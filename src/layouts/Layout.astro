@@ -64,6 +64,7 @@ const jsonLd = extraSchema ? [baseSchema, extraSchema] : baseSchema;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <title>{title} | {siteName}</title>
     <link rel="canonical" href={url} />
@@ -97,6 +98,8 @@ const jsonLd = extraSchema ? [baseSchema, extraSchema] : baseSchema;
 
     <!-- JSON-LD (Schema.org) -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+
+		<link rel="sitemap" href="/sitemap-index.xml" />
   </head>
   <body>
     <Sprites />
