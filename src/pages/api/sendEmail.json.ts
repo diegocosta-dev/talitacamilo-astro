@@ -20,10 +20,28 @@ function json(data: unknown, status = 200) {
   });
 }
 
-async function verifyRecaptcha(token: string, remoteip?: string) {
-  const secret = import.meta.env.RECAPTCHA_SECRET_KEY; // lido em runtime
-  if (!secret) throw new Error("Missing RECAPTCHA_SECRET_KEY");
+/** Pega env do runtime do Cloudflare (Pages/Workers) com fallbacks */
+function getEnv(context: Parameters<APIRoute>[0]) {
+  // Tentativas comuns nos adapters/versions:
+  // - context.locals.runtime.env (Astro adapter-cloudflare mais novo)
+  // - context.locals.env (algumas versões)
+  // - context.platform.env (fallback em runtimes compatíveis)
+  const env =
+    // @ts-ignore
+    context.locals?.runtime?.env ??
+    // @ts-ignore
+    context.locals?.env ??
+    // @ts-ignore
+    context.platform?.env ??
+    {};
+  return env as Record<string, string>;
+}
 
+async function verifyRecaptcha(
+  secret: string,
+  token: string,
+  remoteip?: string
+) {
   const params = new URLSearchParams();
   params.set("secret", secret);
   params.set("response", token);
@@ -34,25 +52,35 @@ async function verifyRecaptcha(token: string, remoteip?: string) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: params.toString(),
   });
+
+  const raw = await res.text();
+  let data: any = null;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    data = { raw };
+  }
+
   if (!res.ok) throw new Error("Failed to reach reCAPTCHA");
-  return res.json() as Promise<{
+  return data as {
     success: boolean;
     score?: number;
     action?: string;
     hostname?: string;
     "error-codes"?: string[];
-  }>;
+  };
 }
 
-async function sendWithResend(payload: {
-  from: string;
-  to: string | string[];
-  subject: string;
-  html: string;
-}) {
-  const apiKey = import.meta.env.RESEND_API_KEY; // lido em runtime
-  if (!apiKey) throw new Error("Missing RESEND_API_KEY");
-
+// Envia usando a API REST do Resend (edge-safe)
+async function sendWithResend(
+  apiKey: string,
+  payload: {
+    from: string;
+    to: string | string[];
+    subject: string;
+    html: string;
+  }
+) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -78,13 +106,23 @@ async function sendWithResend(payload: {
   return data;
 }
 
-export const POST: APIRoute = async ({ request, clientAddress }) => {
+export const POST: APIRoute = async (context) => {
   try {
+    const env = getEnv(context);
+    const { request, clientAddress } = context;
+
     const form = await request.formData();
     const raw = Object.fromEntries(form.entries());
     const input = schema.parse(raw);
 
+    // 1) reCAPTCHA
+    const recaptchaSecret =
+      env.RECAPTCHA_SECRET_KEY ||
+      (import.meta as any).env?.RECAPTCHA_SECRET_KEY;
+    if (!recaptchaSecret) throw new Error("Missing RECAPTCHA_SECRET_KEY");
+
     const recaptcha = await verifyRecaptcha(
+      recaptchaSecret,
       input.recaptchaToken as string,
       clientAddress
     );
@@ -98,10 +136,18 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     // if (recaptcha.action !== "contact_form") return json({ message: "Invalid reCAPTCHA action" }, 400);
     // if (recaptcha.hostname !== "seu-dominio.com") return json({ message: "Invalid hostname" }, 400);
 
+    // 2) E-mail via Resend REST
+    const resendKey =
+      env.RESEND_API_KEY || (import.meta as any).env?.RESEND_API_KEY;
+    if (!resendKey) throw new Error("Missing RESEND_API_KEY");
+
     const fullName = `${input["first-name"]} ${input["last-name"]}`;
-    await sendWithResend({
-      from: "onboarding@resend.dev",
-      to: "diego@hellodative.com",
+    const from = env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const to = env.RESEND_TO_EMAIL || "diego@hellodative.com";
+
+    await sendWithResend(resendKey, {
+      from,
+      to,
       subject: `New Contact Form Submission from ${fullName}`,
       html: `
         <h2>New message from contact form</h2>
