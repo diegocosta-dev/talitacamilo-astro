@@ -131,7 +131,7 @@ export const POST: APIRoute = async (context) => {
 
     const fullName = `${input["first-name"]} ${input["last-name"]}`;
     const from = env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-    const to = env.RESEND_TO_EMAIL || "diego@hellodative.com";
+    const to = env.RESEND_TO_EMAIL || "troiablender@gmail.com";
 
     await sendWithResend(resendKey, {
       from,
