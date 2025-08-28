@@ -1,10 +1,8 @@
 // pages/api/sendEmail.json.ts
 export const prerender = false;
+
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { Resend } from "resend";
-
-const resend = new Resend(import.meta.env.PUBLIC_RESEND_API_KEY);
 
 const schema = z.object({
   "first-name": z.string().min(1, "First name is required"),
@@ -23,7 +21,7 @@ function json(data: unknown, status = 200) {
 }
 
 async function verifyRecaptcha(token: string, remoteip?: string) {
-  const secret = import.meta.env.RECAPTCHA_SECRET_KEY;
+  const secret = import.meta.env.RECAPTCHA_SECRET_KEY; // lido em runtime
   if (!secret) throw new Error("Missing RECAPTCHA_SECRET_KEY");
 
   const params = new URLSearchParams();
@@ -36,16 +34,48 @@ async function verifyRecaptcha(token: string, remoteip?: string) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: params.toString(),
   });
-
   if (!res.ok) throw new Error("Failed to reach reCAPTCHA");
-
-  return (await res.json()) as {
+  return res.json() as Promise<{
     success: boolean;
     score?: number;
     action?: string;
     hostname?: string;
     "error-codes"?: string[];
-  };
+  }>;
+}
+
+async function sendWithResend(payload: {
+  from: string;
+  to: string | string[];
+  subject: string;
+  html: string;
+}) {
+  const apiKey = import.meta.env.RESEND_API_KEY; // lido em runtime
+  if (!apiKey) throw new Error("Missing RESEND_API_KEY");
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const raw = await res.text();
+  let data: any = null;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    data = { raw };
+  }
+
+  if (!res.ok) {
+    const msg =
+      data?.message || data?.error || raw || `Resend error ${res.status}`;
+    throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+  }
+  return data;
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
@@ -54,25 +84,22 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const raw = Object.fromEntries(form.entries());
     const input = schema.parse(raw);
 
-    // 1) valida reCAPTCHA
-    const result = await verifyRecaptcha(
+    const recaptcha = await verifyRecaptcha(
       input.recaptchaToken as string,
       clientAddress
     );
     if (
-      !result.success ||
-      (typeof result.score === "number" && result.score < 0.5)
+      !recaptcha.success ||
+      (typeof recaptcha.score === "number" && recaptcha.score < 0.5)
     ) {
       return json({ message: "reCAPTCHA validation failed." }, 400);
     }
-    // (Opcional) reforçar:
-    // if (result.action !== "contact_form") return json({ message: "Invalid reCAPTCHA action" }, 400);
-    // if (result.hostname !== "seu-dominio.com") return json({ message: "Invalid hostname" }, 400);
+    // (Opcional) reforços:
+    // if (recaptcha.action !== "contact_form") return json({ message: "Invalid reCAPTCHA action" }, 400);
+    // if (recaptcha.hostname !== "seu-dominio.com") return json({ message: "Invalid hostname" }, 400);
 
-    // 2) enviar e-mail
     const fullName = `${input["first-name"]} ${input["last-name"]}`;
-
-    const send = await resend.emails.send({
+    await sendWithResend({
       from: "onboarding@resend.dev",
       to: "diego@hellodative.com",
       subject: `New Contact Form Submission from ${fullName}`,
@@ -85,16 +112,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       `,
     });
 
-    if (!send.data) {
-      return json({ message: `Message failed to send: ${send.error}` }, 500);
-    }
-
     return json({ message: "Message successfully sent!" }, 200);
   } catch (err: any) {
-    if (err?.issues) {
-      const first = err.issues[0];
-      return json({ message: first?.message ?? "Invalid input" }, 400);
-    }
-    return json({ message: err?.message ?? "Unexpected error" }, 500);
+    return json({ message: err?.message || "Unexpected error" }, 500);
   }
 };
