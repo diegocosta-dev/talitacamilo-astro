@@ -1,61 +1,54 @@
-// src/pages/api/contact.ts
+export const prerender = false; //This will not work without this line
+
 import type { APIRoute } from "astro";
 import { Resend } from "resend";
-import { RESEND_API_KEY } from "astro:env/server";
 
-export const prerender = false;
-
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
+const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
 export const POST: APIRoute = async ({ request }) => {
   const data = await request.formData();
+  const name = data.get("name");
+  const email = data.get("email");
+  const message = data.get("message");
 
-  // Honeypot
-  if (String(data.get("company") ?? "")) return json({ message: "Success!" });
+  if (!name || !email || !message) {
+    return new Response(
+      JSON.stringify({
+        message: `Fill out all fields.`,
+      }),
+      {
+        status: 404,
+        statusText: "Did not provide the right data",
+      }
+    );
+  } // Sending information to Resend
 
-  const firstName = String(data.get("first-name") ?? "").trim();
-  const lastName = String(data.get("last-name") ?? "").trim();
-  const email = String(data.get("email") ?? "").trim();
-  const phone = String(data.get("phone") ?? "").trim();
-  const message = String(data.get("message") ?? "").trim();
+  const sendResend = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: "diego@hellodative.com",
+    subject: `Sumbission from ${name}`,
+    html: `<p>Hi ${name},</p><p>Your message was received.</p>`,
+  });
 
-  if (!firstName || !lastName || !email || !phone || !message) {
-    return json({ message: "Missing required fields" }, 400);
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return json({ message: "Invalid email" }, 400);
-  }
-
-  const name = `${firstName} ${lastName}`.trim();
-
-  if (!RESEND_API_KEY) {
-    console.error("Missing RESEND_API_KEY");
-    return json({ message: "Email service not configured." }, 500);
-  }
-
-  try {
-    const resend = new Resend(RESEND_API_KEY);
-
-    const { error } = await resend.emails.send({
-      from: "Website <website@talitacamilo.com>",
-      to: ["info@talitacamilo.com"],
-      replyTo: email,
-      subject: `New contact message from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}\n`,
-    });
-
-    if (error) {
-      console.error("Resend error:", error);
-      return json({ message: "Failed to send email." }, 500);
-    }
-
-    return json({ message: "Success!" }, 200);
-  } catch (e: any) {
-    console.error("Server error:", e?.stack || e?.message || String(e));
-    return json({ message: "Internal server error." }, 500);
+  if (sendResend.data) {
+    return new Response(
+      JSON.stringify({
+        message: `Message successfully sent!`,
+      }),
+      {
+        status: 200,
+        statusText: "OK",
+      }
+    );
+  } else {
+    return new Response(
+      JSON.stringify({
+        message: `Message failed to send: ${sendResend.error}`,
+      }),
+      {
+        status: 500,
+        statusText: `Internal Server Error: ${sendResend.error}`,
+      }
+    );
   }
 };
