@@ -9,7 +9,7 @@ export const POST: APIRoute = async ({ request }) => {
   const data = await request.formData();
   const name = data.get("name");
   const email = data.get("email");
-  const message = data.get("message");
+  const message = data.get("message"); // Validate the data - making sure values are not empty
 
   if (!name || !email || !message) {
     return new Response(
@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
     to: "diego@hellodative.com",
     subject: `Sumbission from ${name}`,
     html: `<p>Hi ${name},</p><p>Your message was received.</p>`,
-  });
+  }); // If the message was sent successfully, return a 200 response
 
   if (sendResend.data) {
     return new Response(
@@ -39,7 +39,7 @@ export const POST: APIRoute = async ({ request }) => {
         status: 200,
         statusText: "OK",
       }
-    );
+    ); // If there was an error sending the message, return a 500 response
   } else {
     return new Response(
       JSON.stringify({
