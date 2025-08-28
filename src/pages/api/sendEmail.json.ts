@@ -130,8 +130,14 @@ export const POST: APIRoute = async (context) => {
     if (!resendKey) throw new Error("Missing RESEND_API_KEY");
 
     const fullName = `${input["first-name"]} ${input["last-name"]}`;
-    const from = env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-    const to = env.RESEND_TO_EMAIL || "troiablender@gmail.com";
+    const from =
+      env.RESEND_FROM_EMAIL ||
+      (import.meta as any).env?.RESEND_FROM_EMAIL ||
+      "onboarding@resend.dev";
+    const to =
+      env.RESEND_TO_EMAIL ||
+      (import.meta as any).env?.RESEND_TO_EMAIL ||
+      "diego@hellodative.com";
 
     await sendWithResend(resendKey, {
       from,
