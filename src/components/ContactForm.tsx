@@ -1,27 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type Status = "idle" | "loading" | "success" | "error";
-
-declare global {
-  interface Window {
-    grecaptcha?: any;
-  }
-}
-
-const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY as string;
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
-
-  useEffect(() => {
-    if (window.grecaptcha) return;
-
-    const script = document.createElement("script");
-    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,63 +15,57 @@ export default function ContactForm() {
     const formData = new FormData(form);
 
     try {
-      const grecaptcha = await new Promise<any>((resolve, reject) => {
-        let tries = 0;
-        const iv = setInterval(() => {
-          tries++;
-          if (window.grecaptcha?.execute) {
-            clearInterval(iv);
-            resolve(window.grecaptcha);
-          }
-          if (tries > 50) {
-            clearInterval(iv);
-            reject(new Error("reCAPTCHA not loaded"));
-          }
-        }, 100);
-      });
-
-      const recaptchaToken = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "contact_form" });
-      formData.set("recaptchaToken", recaptchaToken);
-
       const res = await fetch("/api/sendEmail.json", {
         method: "POST",
         body: formData,
       });
 
-      const contentType = res.headers.get("content-type") ?? "";
-      const raw = await res.text();
-
-      let data: any = null;
-      if (contentType.includes("application/json")) {
-        try {
-          data = JSON.parse(raw);
-        } catch {
-        }
-      }
+      const data = await res.json().catch(async () => ({
+        message: await res.text(),
+      }));
 
       if (!res.ok) {
         setStatus("error");
-        setErrorMsg(data?.message || raw || "Failed to send. Please try again.");
+        setErrorMsg(data?.message || "Failed to send. Please try again.");
         return;
       }
 
       setStatus("success");
       form.reset();
-    } catch (err: any) {
+    } catch {
       setStatus("error");
-      setErrorMsg(err?.message || "Network error. Please try again.");
+      setErrorMsg("Network error. Please try again.");
     }
+  }
+
+  if (status === "success") {
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        className="rounded-md border border-green-200 bg-green-50 p-4 text-green-700"
+      >
+        ✅ Message sent successfully! We’ll get back to you soon.
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col gap-6">
       {status === "error" && (
-        <div role="status" aria-live="polite" className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">
-          <p role="alert" className="text-red-600">{errorMsg}</p>
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700"
+        >
+          <p role="alert" className="text-red-600">
+            {errorMsg}
+          </p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4 bg-primary/5 p-6">
+
         <fieldset className="flex flex-col gap-6 md:flex-row">
           <label className="w-full text-lg">
             <span className="mb-2 block">
