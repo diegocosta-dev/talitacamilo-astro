@@ -1,10 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Status = "idle" | "loading" | "success" | "error";
+
+declare global {
+  interface Window {
+    grecaptcha?: any;
+  }
+}
+
+const RECAPTCHA_SITE_KEY = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY as string;
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY) {
+      console.error("PUBLIC_RECAPTCHA_SITE_KEY is missing");
+      return;
+    }
+    if (document.getElementById("grecaptcha-script")) return;
+
+    const script = document.createElement("script");
+    script.id = "grecaptcha-script";
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+  }, []);
+
+  async function getRecaptchaToken(action: string) {
+    // espera o ready() antes de execute()
+    await new Promise<void>((resolve, reject) => {
+      let tries = 0;
+      const iv = setInterval(() => {
+        tries++;
+        if (window.grecaptcha?.ready) {
+          clearInterval(iv);
+          window.grecaptcha.ready(() => resolve());
+        } else if (tries > 200) {
+          clearInterval(iv);
+          reject(new Error("reCAPTCHA not loaded"));
+        }
+      }, 100);
+    });
+
+    return window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -15,26 +57,37 @@ export default function ContactForm() {
     const formData = new FormData(form);
 
     try {
+      if (!RECAPTCHA_SITE_KEY) {
+        throw new Error("reCAPTCHA not configured (missing PUBLIC_RECAPTCHA_SITE_KEY).");
+      }
+
+      const recaptchaToken = await getRecaptchaToken("contact_form");
+      formData.set("recaptchaToken", recaptchaToken);
+
       const res = await fetch("/api/sendEmail.json", {
         method: "POST",
         body: formData,
       });
 
-      const data = await res.json().catch(async () => ({
-        message: await res.text(),
-      }));
+      // === leitura única do body ===
+      const contentType = res.headers.get("content-type") ?? "";
+      const raw = await res.text();
+      let data: any = null;
+      if (contentType.includes("application/json")) {
+        try { data = JSON.parse(raw); } catch { }
+      }
 
       if (!res.ok) {
         setStatus("error");
-        setErrorMsg(data?.message || "Failed to send. Please try again.");
+        setErrorMsg(data?.message || raw || "Failed to send. Please try again.");
         return;
       }
 
       setStatus("success");
       form.reset();
-    } catch {
+    } catch (err: any) {
       setStatus("error");
-      setErrorMsg("Network error. Please try again.");
+      setErrorMsg(err?.message || "Network error. Please try again.");
     }
   }
 
