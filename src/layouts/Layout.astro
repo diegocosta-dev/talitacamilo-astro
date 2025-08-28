@@ -4,28 +4,106 @@ import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import Sprites from "../components/Sprites.astro";
 
-const title = Astro.props.title ?? "Page Title";
+// Props dinâmicos por página
+const {
+  title = "Page Title",
+  description = "We provide individuals, families, and small to medium-size businesses in all industries and professions with quality, affordable, personalized tax and professional services in your area.",
+  image = "/images/Staff-meeting.jpg",    // aceita relativo ou absoluto
+  url = "https://talitacamilo.pages.dev", // URL canônica da página atual
+  lang = "en",
+  siteName = "Talita Camilo Professional Service",
+  twitterSite = "@talitazcamilo",         // @handle do site/empresa
+  type = "website",                       // og:type: website | article | product etc.
+  noindex = false,                        // para páginas que não devem ser indexadas
+  schema: extraSchema = null              // opcional: JSON para complementar o schema base
+} = Astro.props;
+
+// Garante URL absoluta para imagens/recursos
+const abs = (path:any) => path?.startsWith("http") ? path : new URL(path, url).toString();
+
+// Schema base (JSON-LD) — pode ser complementado via prop "schema"
+const baseSchema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "url": url,
+  "name": siteName,
+  "description": description,
+	"telephone": "+1-508-790-7014",
+	"address": {
+    "@type": "PostalAddress",
+    "streetAddress": "9100 Conroy Windermere Rd",
+    "addressLocality": "Windermere",
+    "addressRegion": "FL",
+    "postalCode": "34786",
+    "addressCountry": "US"
+  },
+	"openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": [
+      "Monday","Tuesday","Wednesday","Thursday","Friday"
+    ],
+    "opens": "09:00",
+    "closes": "17:00"
+  }],
+	"sameAs": [
+    "https://www.facebook.com/TalitaCamiloProfessionalServices/",
+    "https://www.linkedin.com/company/talita-camilo-professional-services/",
+		"https://www.instagram.com/tcproservices/",
+		"https://x.com/talitazcamilo",
+		"https://www.alignable.com/barnstable-ma/talita-camilo-professional-services-2"
+  ],
+  "image": abs(image)
+};
+
+const jsonLd = extraSchema ? [baseSchema, extraSchema] : baseSchema;
 ---
 
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{ title } | Talita Camilo Professional Service</title>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
 
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-	</head>
-	<body>
-		<Sprites />
-		<SiteHeader/>
-		<main>
-			<slot />
-		</main>
-		<SiteFooter/>
-	</body>
+    <title>{title} | {siteName}</title>
+    <link rel="canonical" href={url} />
+    {noindex && (<meta name="robots" content="noindex, nofollow" />)}
+
+    <!-- SEO básico -->
+    <meta name="description" content={description} />
+
+    <!-- Open Graph (Facebook/LinkedIn/WhatsApp) -->
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={abs(image)} />
+    <meta property="og:locale" content={lang} />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={twitterSite} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={abs(image)} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+
+    <!-- JSON-LD (Schema.org) -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+  </head>
+  <body>
+    <Sprites />
+    <SiteHeader />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
 </html>
