@@ -2,9 +2,6 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { Resend } from "resend";
-
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
 const schema = z.object({
   "first-name": z.string().min(1, "First name is required"),
@@ -35,6 +32,7 @@ async function verifyRecaptcha(token: string, remoteip?: string) {
   });
 
   if (!res.ok) throw new Error("Failed to reach reCAPTCHA");
+
   return (await res.json()) as {
     success: boolean;
     score?: number;
@@ -42,6 +40,49 @@ async function verifyRecaptcha(token: string, remoteip?: string) {
     hostname?: string;
     "error-codes"?: string[];
   };
+}
+
+async function sendWithResendREST(payload: {
+  from: string;
+  to: string | string[];
+  subject: string;
+  html: string;
+}) {
+  const apiKey = import.meta.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing RESEND_API_KEY");
+  }
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const raw = await res.text();
+  let data: any = null;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    data = { raw };
+  }
+
+  if (!res.ok) {
+    const msg =
+      data?.message ||
+      data?.error ||
+      data?.name ||
+      raw ||
+      `Resend API error (status ${res.status})`;
+    throw new Error(
+      typeof msg === "string" ? msg : JSON.stringify(msg, null, 2)
+    );
+  }
+
+  return data;
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
@@ -62,10 +103,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     }
 
     const fullName = `${input["first-name"]} ${input["last-name"]}`;
+    const from = import.meta.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const to = import.meta.env.RESEND_TO_EMAIL || "diego@hellodative.com";
 
-    const send = await resend.emails.send({
-      from: import.meta.env.RESEND_FROM_EMAIL,
-      to: import.meta.env.RESEND_TO_EMAIL,
+    await sendWithResendREST({
+      from,
+      to,
       subject: `New Contact Form Submission from ${fullName}`,
       html: `
         <h2>New message from contact form</h2>
@@ -76,16 +119,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       `,
     });
 
-    if (!send.data) {
-      return json({ message: `Message failed to send: ${send.error}` }, 500);
-    }
-
     return json({ message: "Message successfully sent!" }, 200);
   } catch (err: any) {
-    if (err?.issues) {
-      const first = err.issues[0];
-      return json({ message: first?.message ?? "Invalid input" }, 400);
-    }
-    return json({ message: err?.message ?? "Unexpected error" }, 500);
+    const message =
+      err?.message ||
+      (typeof err === "string" ? err : "Unexpected error sending email");
+    return json({ message }, 500);
   }
 };
